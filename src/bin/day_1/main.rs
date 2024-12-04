@@ -1,38 +1,13 @@
 use std::collections::HashMap;
 
-type LocationId = i32;
+type LocationId = usize;
 
-struct LocationIdList {
-    location_ids: Vec<LocationId>,
-}
-
-impl LocationIdList {
-    fn new() -> LocationIdList {
-        LocationIdList {
-            location_ids: Vec::new(),
-        }
-    }
-
-    fn add_location(&mut self, location_id: LocationId) {
-        let mut insertion_index = self.location_ids.len();
-        for (index, &current_location_id) in self.location_ids.iter().enumerate() {
-            if location_id < current_location_id {
-                insertion_index = index;
-                break;
-            }
-        }
-        self.location_ids.insert(insertion_index, location_id);
-    }
-
-    fn get_locations(&self) -> &Vec<LocationId> {
-        &self.location_ids
-    }
-}
+type LocationIdList = Vec<LocationId>;
 
 struct LocationIdLists {
     left: LocationIdList,
     right: LocationIdList,
-    right_counter: HashMap<i32, i32>,
+    right_counter: HashMap<LocationId, usize>,
 }
 
 impl LocationIdLists {
@@ -45,26 +20,25 @@ impl LocationIdLists {
     }
 
     fn add_locations(&mut self, location_1: LocationId, location_2: LocationId) {
-        self.left.add_location(location_1);
-        self.right.add_location(location_2);
+        self.left.push(location_1);
+        self.right.push(location_2);
         self.right_counter.entry(location_2).and_modify(|count| *count += 1).or_insert(1);
     }
 
-    fn find_total_distance(&self) -> i32 {
-        let mut total_distance = 0;
-        for (location_1, location_2) in self.left.get_locations().iter().zip(self.right.get_locations().iter()) {
-            total_distance += (location_2 - location_1).abs();
-        }
-        total_distance
+    pub fn iter(&self) -> impl Iterator<Item=(&LocationId, &LocationId)> + '_ {
+        self.left.iter().zip(self.right.iter())
     }
 
-    fn find_similarity_score(&self) -> i32 {
-        let mut similarity_score = 0;
-        for location_1 in self.left.get_locations().iter() {
-            let right_counter = self.right_counter.get(location_1).unwrap_or(&0);
-            similarity_score += location_1 * right_counter;
-        }
-        similarity_score
+    fn find_total_distance(&self) -> usize {
+        self.iter()
+            .map(|(location_1, location_2)| location_1.abs_diff(*location_2))
+            .sum()
+    }
+
+    fn find_similarity_score(&self) -> usize {
+        self.left.iter()
+            .map(|location_1| location_1 * self.right_counter.get(location_1).unwrap_or(&0))
+            .sum()
     }
 }
 
@@ -77,6 +51,8 @@ impl From<&str> for LocationIdLists {
             let location_2 = location_ids.next().unwrap().parse::<LocationId>().unwrap();
             location_id_lists.add_locations(location_1, location_2);
         }
+        location_id_lists.left.sort();
+        location_id_lists.right.sort();
         location_id_lists
     }
 }
@@ -85,7 +61,7 @@ fn main() {
     let input = include_str!("input");
     let location_id_lists = LocationIdLists::from(input);
     let total_distance = location_id_lists.find_total_distance();
-    println!("{}", &total_distance);
+    println!("Total Distance: {}", &total_distance);
     let similarity_score = location_id_lists.find_similarity_score();
-    println!("{}", &similarity_score);
+    println!("Similarity Score: {}", &similarity_score);
 }

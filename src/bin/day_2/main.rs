@@ -12,11 +12,21 @@ struct Report {
 }
 
 impl Report {
-    fn is_safe(&self, adjacent_levels_tolerance_range: Range<Level>, allow_bad_level: bool) -> bool {
+    fn is_safe(&self, adjacent_levels_tolerance_range: Range<Level>, skip_level_index: Option<usize>) -> bool {
         let mut level_direction = LevelDirection::Unknown;
-        let mut bad_level_found = false;
         for (i, level) in self.levels.iter().enumerate().skip(1) {
             let mut last_level = self.levels[i - 1];
+            if let Some(skip_level_index) = skip_level_index {
+                if i == skip_level_index {
+                    continue;
+                } else if i - 1 == skip_level_index {
+                    if skip_level_index > 0 {
+                        last_level = self.levels[i - 2];
+                    } else {
+                        continue;
+                    }
+                }
+            }
             let next_level_direction = if *level > last_level {
                 LevelDirection::Increasing
             } else {
@@ -24,16 +34,18 @@ impl Report {
             };
             let in_range = adjacent_levels_tolerance_range.contains(&last_level.abs_diff(*level));
             if (level_direction != LevelDirection::Unknown && level_direction != next_level_direction) || !in_range {
-                if allow_bad_level && !bad_level_found {
-                    bad_level_found = true;
-                    continue;
-                } else {
-                    return false;
-                }
+                return false;
             }
             level_direction = next_level_direction;
         }
         return true;
+    }
+
+
+    fn is_safe_with_bad_level(&self, adjacent_levels_tolerance_range: Range<Level>) -> bool {
+        let mut range_to_check = 0..self.levels.len();
+        range_to_check
+            .any(|i| self.is_safe(adjacent_levels_tolerance_range.clone(), Some(i)))
     }
 }
 
@@ -51,7 +63,11 @@ struct Reports {
 
 impl Reports {
     fn count_safe_reports(&self, adjacent_levels_tolerance_range: Range<Level>, allow_bad_level: bool) -> usize {
-        self.reports.iter().filter(|report| report.is_safe(adjacent_levels_tolerance_range.clone(), allow_bad_level)).count()
+        if !allow_bad_level {
+            self.reports.iter().filter(|report| report.is_safe(adjacent_levels_tolerance_range.clone(), None)).count()
+        } else {
+            self.reports.iter().filter(|report| report.is_safe_with_bad_level(adjacent_levels_tolerance_range.clone())).count()
+        }
     }
 }
 
