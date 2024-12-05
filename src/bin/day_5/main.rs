@@ -11,11 +11,6 @@ struct SafetyManualUpdates {
 
 struct SumMiddlePages(usize, usize);
 
-enum MiddlePageNumber {
-    CorrectlyOrdered(usize),
-    IncorrectlyOrdered(usize),
-}
-
 impl SafetyManualUpdates {
     fn sum_middle_page_numbers(&self) -> SumMiddlePages {
         let mut correctly_ordered_sum = 0;
@@ -39,11 +34,8 @@ impl SafetyManualUpdates {
             let Some(rules) = self.page_ordering_rules.get(&page) else {
                 continue;
             };
-
-            let before_pages = HashSet::from_iter(before.iter().cloned());
-            let after_pages = HashSet::from_iter(after.iter().cloned());
-            if rules.intersection(&before_pages).count() > 0
-                || rules.intersection(&after_pages).count() != after.len() {
+            if before.iter().any(|page| rules.contains(page))
+                || !after.iter().all(|page| rules.contains(page)) {
                 return false;
             }
         }
@@ -81,7 +73,6 @@ impl From<&str> for SafetyManualUpdates {
                 .or_default()
                 .insert(parts.next().unwrap().parse().unwrap());
         }
-
 
         let page_updates = iter.map(
             |line| line.split(",").map(|page| page.parse().unwrap()).collect()
