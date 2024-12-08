@@ -50,6 +50,15 @@ struct Lab {
 
 impl Lab {
 
+    fn new() -> Self {
+        Lab {
+            map: HashMap::new(),
+            guard: Guard { pos: Vec2D::default(), dir: Vec2D::up() },
+            seen: HashMap::new(),
+            possible_obstruction_positions: HashSet::new(),
+        }
+    }
+
     fn set_path(&mut self, pos: Vec2D, path: Path) {
         self.map.insert(pos, path);
     }
@@ -113,6 +122,7 @@ impl Lab {
 
 impl From<&str> for Lab {
     fn from(value: &str) -> Self {
+        let mut lab = Lab::new();
         let mut map = HashMap::new();
         let mut guard: Guard = Guard { pos: Vec2D { x: 0, y: 0 }, dir: Vec2D { x: 0, y: -1 } };
         let mut y = 0;

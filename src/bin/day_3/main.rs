@@ -75,8 +75,8 @@ fn main() {
     let instructions = computer.find_instructions();
 
     let output_without_dos_and_donts = computer.run_instructions(&instructions, false);
-    println!("Output (disabled dos/donts): {}", output_without_dos_and_donts);
+    println!("Part 1: {}", output_without_dos_and_donts);
 
     let output_with_dos_and_donts = computer.run_instructions(&instructions, true);
-    println!("Output (enabled dos/donts): {}", output_with_dos_and_donts);
+    println!("Part 2: {}", output_with_dos_and_donts);
 }

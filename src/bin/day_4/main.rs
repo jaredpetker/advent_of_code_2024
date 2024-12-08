@@ -110,6 +110,6 @@ impl Display for WordSearch {
 fn main() {
     let input = include_str!("input");
     let word_search: WordSearch = input.into();
-    println!("# of XMAS: {}", word_search.find_word_count("XMAS"));
-    println!("# of X-MAS: {}", word_search.find_x_word_count("MAS"));
+    println!("Part 1: {}", word_search.find_word_count("XMAS"));
+    println!("Part 2: {}", word_search.find_x_word_count("MAS"));
 }

@@ -84,7 +84,7 @@ fn main() {
     let input = include_str!("input");
     let reports = Reports::from(input);
     let num_safe_reports = reports.count_safe_reports(1..4, false);
-    println!("Number of safe reports: {}", num_safe_reports);
+    println!("Part 1: {}", num_safe_reports);
     let num_safe_reports_allowing_bad_level = reports.count_safe_reports(1..4, true);
-    println!("Number of safe reports while allowing bad level: {}", num_safe_reports_allowing_bad_level);
+    println!("Part 2: {}", num_safe_reports_allowing_bad_level);
 }

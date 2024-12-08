@@ -61,7 +61,7 @@ fn main() {
     let input = include_str!("input");
     let location_id_lists = LocationIdLists::from(input);
     let total_distance = location_id_lists.find_total_distance();
-    println!("Total Distance: {}", &total_distance);
+    println!("Part 1: {}", &total_distance);
     let similarity_score = location_id_lists.find_similarity_score();
-    println!("Similarity Score: {}", &similarity_score);
+    println!("Part 2: {}", &similarity_score);
 }
