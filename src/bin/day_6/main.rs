@@ -11,7 +11,7 @@ enum Path {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Step {
     Valid,
-    Invalid,
+    Invalid
 }
 
 #[derive(Debug, Clone)]
@@ -49,6 +49,11 @@ struct Lab {
 
 
 impl Lab {
+
+    fn set_path(&mut self, pos: Vec2D, path: Path) {
+        self.map.insert(pos, path);
+    }
+
     fn step(&mut self) -> Step {
         let next_step = self.guard.next_pos();
         match self.map.get(&next_step) {
@@ -64,27 +69,36 @@ impl Lab {
         }
     }
 
+    fn has_loop(&mut self) -> bool {
+        loop {
+            self.mark_guard_pos_as_seen();
+            match self.step() {
+                Step::Valid => {
+                    if self.seen.get(&self.guard.pos).is_some_and(|seen| seen.contains(&self.guard.dir)) {
+                        return true
+                    }
+                }
+                _ => return false
+            }
+        }
+    }
+
+    fn mark_guard_pos_as_seen(&mut self) {
+        self.seen.entry(self.guard.pos.clone()).or_default().insert(self.guard.dir.clone());
+    }
+
     fn solve(&mut self) -> Solution {
         loop {
             let next_pos = self.guard.next_pos();
             if Some(&Path::Clear) == self.map.get(&next_pos) && !self.seen.contains_key(&next_pos) {
-                let mut new_map = self.clone();
-                new_map.map.insert(next_pos, Path::Obstacle);
-                loop {
-                    new_map.seen.entry(new_map.guard.pos.clone()).or_default().insert(new_map.guard.dir.clone());
-                    match new_map.step() {
-                        Step::Valid => {
-                            if new_map.seen.get(&new_map.guard.pos).is_some_and(|seen| seen.contains(&new_map.guard.dir)) {
-                                self.possible_obstruction_positions.insert(next_pos);
-                                break;
-                            }
-                        }
-                        _ => break
-                    }
+                let mut cloned_lab = self.clone();
+                cloned_lab.set_path(next_pos, Path::Obstacle);
+                if cloned_lab.has_loop() {
+                    self.possible_obstruction_positions.insert(next_pos);
                 }
             }
 
-            self.seen.entry(self.guard.pos.clone()).or_default().insert(self.guard.dir.clone());
+            self.mark_guard_pos_as_seen();
             if self.step() == Invalid {
                 break;
             }
@@ -94,6 +108,7 @@ impl Lab {
             possible_obstruction_positions: self.possible_obstruction_positions.len(),
         }
     }
+
 }
 
 impl From<&str> for Lab {
