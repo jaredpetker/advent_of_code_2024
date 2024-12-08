@@ -107,5 +107,19 @@ impl std::ops::Neg for Vec2D {
     }
 }
 
+pub struct Rect2D {
+    pub top_left: Vec2D,
+    pub bottom_right: Vec2D,
+}
 
+impl Rect2D {
+    pub fn new(top_left: Vec2D, bottom_right: Vec2D) -> Self {
+        Rect2D { top_left, bottom_right }
+    }
+
+    pub fn contains(&self, point: Vec2D) -> bool {
+        point.x >= self.top_left.x && point.x < self.bottom_right.x &&
+        point.y >= self.top_left.y && point.y < self.bottom_right.y
+    }
+}
 
