@@ -49,7 +49,19 @@ struct DiskLayout {
     used_space: usize,
 }
 
+enum CompactionStrategy {
+    Blocks,
+    Groups,
+}
+
 impl DiskLayout {
+    fn compact(&mut self, strategy: CompactionStrategy) {
+        match strategy {
+            CompactionStrategy::Blocks => self.compact_blocks(),
+            CompactionStrategy::Groups => self.compact_groups(),
+        }
+    }
+
     fn compact_blocks(&mut self) {
         let mut file_tracker = self.blocks.len() - 1;
         for i in 0..self.used_space {
@@ -93,11 +105,11 @@ impl DiskLayout {
 
     fn checksum(&self) -> usize {
         self.blocks.iter().enumerate()
-            .filter_map(|(i, block)| match block {
-                DiskBlock::File(id) => {
-                    Some(id * i)
+            .filter_map(|(i, block)| {
+                match block {
+                    DiskBlock::File(id) => Some(id * i),
+                    DiskBlock::Free => None
                 }
-                DiskBlock::Free => None
             }).sum()
     }
 }
@@ -140,9 +152,9 @@ fn main() {
     let input = include_str!("input");
     let disk_map: DiskMap = input.into();
     let mut disk_layout: DiskLayout = disk_map.into();
-    disk_layout.compact_blocks();
+    disk_layout.compact(CompactionStrategy::Blocks);
     println!("Part 1: {}", disk_layout.checksum());
     disk_layout.rebuild_blocks_from_groups();
-    disk_layout.compact_groups();
+    disk_layout.compact(CompactionStrategy::Groups);
     println!("Part 2: {}", disk_layout.checksum());
 }

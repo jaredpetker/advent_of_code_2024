@@ -1,6 +1,5 @@
 use std::collections::{HashMap, HashSet};
 use advent_of_code_2024::Vec2D;
-use crate::Step::Invalid;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Path {
@@ -74,7 +73,7 @@ impl Lab {
                 self.guard.turn();
                 Step::Valid
             }
-            _ => Invalid
+            _ => Step::Invalid
         }
     }
 
@@ -108,7 +107,7 @@ impl Lab {
             }
 
             self.mark_guard_pos_as_seen();
-            if self.step() == Invalid {
+            if self.step() == Step::Invalid {
                 break;
             }
         }
