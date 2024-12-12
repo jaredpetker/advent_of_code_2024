@@ -37,6 +37,11 @@ impl Vec2D {
     pub fn add(&self, other: &Vec2D) -> Vec2D {
         Vec2D { x: self.x + other.x, y: self.y + other.y }
     }
+
+    pub fn prod_vec(&self, other: &Vec2D) -> Vec2D {
+        Vec2D { x: self.x * other.x, y: self.y * other.y }
+    }
+
 }
 
 impl std::ops::Add<Vec2D> for Vec2D {
